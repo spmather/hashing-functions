@@ -2,12 +2,15 @@
 
 # SPMATHER
 # 2026-06-14
-# Version 1.0.0
+# Version 1.0.1 2026-06-17
 
 # tl;dr  function gets the hash of a string instead of a file
 # use ``` find-hash "bruh" ```
 
 function Find-Hash {
+
+    # Help coming soon
+
     param (
         [Parameter(
             Position          = 0,    
