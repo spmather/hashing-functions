@@ -3,14 +3,15 @@
 
 # SPMATHER
 # 2026-06-20
-# Version 1.0.0
+# Version 1.0.1
 
 # Converts a list of words in a text file.  Use this function for a pre-sorted unique text list as it is much faster
 #     than Conver-TextFileToHash
 
 # Example loop with plain text files:
-# foreach ($file in ((get-childitem ~/Documents/WordList).FullName)) {$shortname = $file.split('/')[-1] ;  Convert-TextListToHashCSV -FilePath $file -OutFilePath ./$($shortname)_$(get-random)_hashes.csv -ExcludeNumeral}
-
+# foreach ($file in ((get-childitem ~/Documents/directory-of-wordlists -file *.txt -recurse).FullName)) `
+#     {$shortname = $file.split('/')[-1] ;  Convert-TextListToHashCSV -FilePath $file -OutFilePath `
+#     ./wordlists2/$($shortname)_$(get-random)_hashes.csv}
 
 function Convert-TextListToHashCSV {
 
@@ -26,20 +27,14 @@ function Convert-TextListToHashCSV {
 
         [Parameter(
             Position          = 0,
-            Mandatory         = $False
+            Mandatory         = $True
         )]
-        [string]$OutFilePath,
-
-        [Parameter(
-            Mandatory         = $False
-        )]
-        [switch]$ExcludeNumeral
+        [string]$OutFilePath
     )
     
-    $Content      = (Get-Content $FilePath)
-    $ContentSplit = $Content.Split(' ','.',',',';',':',"'",'(',')','?','!','[',']',"`’","`‘")
-
-    if ($OutFilePath -eq $Null) {
+    $Content = (Get-Content $FilePath)
+    
+    if ($Null -eq $OutFilePath) {
         $OutFilePath = "$PSScriptRoot/Hashes.txt"
     }
 
@@ -48,18 +43,7 @@ function Convert-TextListToHashCSV {
         bash -c "chmod 777 $OutFilePath"
     }
 
-    if ($ExcludeNumeral) {
-        (0..9) | ForEach-Object {
-            $ContentWords = $ContentSplit.Replace($_,"")
-        }
-    }
-    elseif (!($ExcludeNumeral)) {
-        $ContentWords = $ContentSplit
-    }
-
-    $UniqueContentWords = $ContentWords
-
-    foreach ($String in $UniqueContentWords) {
+    foreach ($String in $Content) {
         $String = $String.Trim()
         $String + ',' + (Find-Hash $String) | Out-File -FilePath $OutFilePath -Append  # import find-hash function first
     }
